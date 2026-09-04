@@ -1,9 +1,11 @@
 """메일 발송 (Gmail SMTP 기준).
 
 필요 환경변수:
-  SMTP_USER : Gmail 주소
-  SMTP_PASS : 앱 비밀번호 (구글 계정 > 보안 > 2단계 인증 > 앱 비밀번호)
-  MAIL_TO   : 수신 주소 (미설정 시 SMTP_USER로 발송)
+  SMTP_USER : Gmail 주소 (발신 계정)
+  SMTP_PASS : 앱 비밀번호
+  MAIL_TO   : 수신 주소 — 여러 명이면 쉼표로 구분
+              예: kim@company.co.kr, lee@company.co.kr, park@gmail.com
+              미설정 시 SMTP_USER 본인에게 발송.
 """
 import os
 import smtplib
@@ -14,13 +16,16 @@ from email.header import Header
 def send(subject: str, body: str):
     user = os.environ["SMTP_USER"]
     pw = os.environ["SMTP_PASS"]
-    to = os.environ.get("MAIL_TO") or user
+    raw = os.environ.get("MAIL_TO") or user
+    recipients = [a.strip() for a in raw.split(",") if a.strip() and "@" in a]
+    if not recipients:
+        recipients = [user]
 
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = Header(subject, "utf-8")
     msg["From"] = user
-    msg["To"] = to
+    msg["To"] = ", ".join(recipients)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
         s.login(user, pw)
-        s.sendmail(user, [to], msg.as_string())
+        s.sendmail(user, recipients, msg.as_string())
