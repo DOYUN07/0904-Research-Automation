@@ -54,7 +54,8 @@ def run():
     except Exception as e:
         errors.append(f"기업마당 API 오류: {e}")
 
-    # ── 2. 기관별 선별 ────────────────────────────
+    # ── 2. 기관별 선별 (이미 알림한 공고는 제외) ──
+    seen = archive.load_seen()
     results = []  # [{name, status, items:[{title,url,keywords,deadline}]}]
     for ag in cfg["agencies"]:
         name = ag["name"]
@@ -82,9 +83,11 @@ def run():
             results.append(entry)
             continue
 
-        # 키워드 필터 → 상위 max_n건
+        # 키워드 필터 → 중복 제거 → 상위 max_n건
         picked = []
         for it in candidates:
+            if it.get("url") in seen or f"{name}|{it.get('title','')}" in seen:
+                continue  # 이전 브리핑에서 이미 알림한 공고
             hits = match_keywords(it.get("title", "") + " " + it.get("summary", ""), kw_map)
             if hits:
                 it["keywords"] = hits

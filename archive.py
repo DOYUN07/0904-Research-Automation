@@ -15,6 +15,19 @@ CSV_PATH = os.path.join(HERE, "history.csv")
 CSV_HEADER = ["날짜", "기관", "공고명", "키워드", "마감", "링크"]
 
 
+def load_seen() -> set:
+    """history.csv에 이미 기록된 공고의 링크·(기관|제목) 집합 → 중복 제거용."""
+    seen = set()
+    if not os.path.exists(CSV_PATH):
+        return seen
+    with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            if row.get("링크"):
+                seen.add(row["링크"])
+            seen.add(f"{row.get('기관','')}|{row.get('공고명','')}")
+    return seen
+
+
 def save(text: str, results: list):
     today = datetime.date.today().isoformat()
 
