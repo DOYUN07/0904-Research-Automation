@@ -28,6 +28,61 @@ def load_seen() -> set:
     return seen
 
 
+def _parse_end_date(deadline: str):
+    """'2026-09-01 ~ 2026-09-30', '20260930' 등에서 마지막 날짜 추출. 실패 시 None."""
+    import re
+    dates = re.findall(r"(\d{4})[.\-/]?\s?(\d{2})[.\-/]?\s?(\d{2})", deadline or "")
+    if not dates:
+        return None
+    y, m, d = dates[-1]
+    try:
+        return datetime.date(int(y), int(m), int(d))
+    except ValueError:
+        return None
+
+
+def load_ongoing(keep_days: int = 30) -> list:
+    """이전에 알림했고 아직 유효한 공고 목록.
+
+    - 마감일 파싱 가능: 오늘 이후면 유지
+    - 마감일 없음/파싱 불가: 첫 알림일로부터 keep_days일 동안만 유지
+    반환: [{date, agency, title, keywords, deadline, url, end}] (마감 임박순)
+    """
+    if not os.path.exists(CSV_PATH):
+        return []
+    today = datetime.date.today()
+    out, seen_key = [], set()
+    with open(CSV_PATH, newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            key = row.get("링크") or f"{row.get('기관')}|{row.get('공고명')}"
+            if key in seen_key:
+                continue
+            seen_key.add(key)
+            end = _parse_end_date(row.get("마감", ""))
+            if end is not None:
+                if end < today:
+                    continue  # 마감 지남
+            else:
+                try:
+                    first = datetime.date.fromisoformat(row.get("날짜", ""))
+                    if (today - first).days > keep_days:
+                        continue  # 마감일 미상 → 30일 경과 시 제외
+                except ValueError:
+                    continue
+            out.append({
+                "date": row.get("날짜", ""),
+                "agency": row.get("기관", ""),
+                "title": row.get("공고명", ""),
+                "keywords": row.get("키워드", ""),
+                "deadline": row.get("마감", ""),
+                "url": row.get("링크", ""),
+                "end": end,
+            })
+    # 마감 임박순 정렬 (마감일 없는 건 뒤로)
+    out.sort(key=lambda r: (r["end"] is None, r["end"] or datetime.date.max))
+    return out
+
+
 def save(text: str, results: list):
     today = datetime.date.today().isoformat()
 

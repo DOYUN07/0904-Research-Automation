@@ -5,7 +5,7 @@ STATUS_UNCONF = "· (게시판 미설정 — config.yaml에 url/selector 입력 
 STATUS_ERROR = "· 수집 오류 발생"
 
 
-def build_report(today: str, results: list, errors: list) -> str:
+def build_report(today: str, results: list, errors: list, ongoing: list = None) -> str:
     lines = [f"■ 아침 공고 브리핑 — {today}", ""]
 
     with_items = [r for r in results if r["items"]]
@@ -24,7 +24,16 @@ def build_report(today: str, results: list, errors: list) -> str:
     else:
         lines.append("▶ 오늘 키워드에 매칭된 공고가 없습니다.")
 
-    # 2) 공고 없는 기관 — 명시적으로 표기
+    # 2) 진행 중인 공고 — 이전 알림분 중 마감 전인 것 (마감 임박순)
+    if ongoing:
+        lines.append(f"\n▶ 진행 중인 공고 — 이전 알림, 아직 지원 가능 ({len(ongoing)}건)")
+        for o in ongoing:
+            dl = f" | 마감: {o['deadline']}" if o.get("deadline") else f" | {o['date']} 알림"
+            lines.append(f" - [{o['agency']}] {o['title']}{dl}")
+            if o.get("url"):
+                lines.append(f"   {o['url']}")
+
+    # 3) 공고 없는 기관 — 명시적으로 표기
     lines.append(f"\n▶ 공고 없음 / 미설정 ({len(without)}개 기관)")
     for r in without:
         tag = {"none": STATUS_NONE, "unconfigured": STATUS_UNCONF,

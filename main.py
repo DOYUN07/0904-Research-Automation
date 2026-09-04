@@ -101,7 +101,8 @@ def run():
 
     # ── 3. 리포트 생성 + 발송 ─────────────────────
     today = datetime.date.today().strftime("%Y-%m-%d (%a)")
-    text = build_report(today, results, errors)
+    ongoing = archive.load_ongoing(keep_days=cfg.get("ongoing_keep_days", 30))
+    text = build_report(today, results, errors, ongoing=ongoing)
     print(text)
     archive.save(text, results)
     send_all(subject=f"[아침 공고 브리핑] {today}", body=text)

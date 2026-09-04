@@ -117,3 +117,6 @@ agencies:
   - name: 한국산업기술원
     match: [한국산업기술원]
     board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
+
+# 마감일 없는 공고를 "진행 중" 목록에 유지할 일수
+ongoing_keep_days: 30
