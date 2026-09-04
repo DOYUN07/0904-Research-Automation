@@ -14,7 +14,7 @@ from email.header import Header
 def send(subject: str, body: str):
     user = os.environ["SMTP_USER"]
     pw = os.environ["SMTP_PASS"]
-    to = os.environ.get("MAIL_TO", user)
+    to = os.environ.get("MAIL_TO") or user
 
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = Header(subject, "utf-8")
