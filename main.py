@@ -14,6 +14,7 @@ import datetime
 from fetchers import bizinfo, kstartup, board
 from report import build_report
 from notify import send_all
+import archive
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -99,6 +100,7 @@ def run():
     today = datetime.date.today().strftime("%Y-%m-%d (%a)")
     text = build_report(today, results, errors)
     print(text)
+    archive.save(text, results)
     send_all(subject=f"[아침 공고 브리핑] {today}", body=text)
 
 
