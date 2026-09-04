@@ -24,6 +24,12 @@ def load_config():
         return yaml.safe_load(f)
 
 
+def match_exclude(text: str, excludes: list) -> bool:
+    """제외 키워드가 하나라도 포함되면 True."""
+    t = (text or "").lower()
+    return any(x.lower() in t for x in excludes)
+
+
 def flatten_keywords(cfg) -> dict:
     """{그룹명: [단어...]} → 소문자 단어 → 그룹명 매핑."""
     kw = {}
@@ -43,6 +49,7 @@ def match_keywords(text: str, kw_map: dict) -> list:
 def run():
     cfg = load_config()
     kw_map = flatten_keywords(cfg)
+    excludes = cfg.get("exclude_keywords", []) or []
     max_n = cfg.get("max_per_agency", 3)
     recent_days = cfg.get("recent_days", 7)
 
@@ -92,7 +99,10 @@ def run():
             end = archive._parse_end_date(it.get("deadline", ""))
             if end and end < today_d:
                 continue  # 이미 마감된 공고
-            hits = match_keywords(it.get("title", "") + " " + it.get("summary", ""), kw_map)
+            text = it.get("title", "") + " " + it.get("summary", "")
+            if match_exclude(text, excludes):
+                continue  # 제외 키워드 포함
+            hits = match_keywords(text, kw_map)
             if hits:
                 it["keywords"] = hits
                 picked.append(it)
