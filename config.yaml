@@ -126,8 +126,10 @@ agencies:
     source: kstartup
   - name: 부산경제진흥원
     match: [부산경제진흥원]
+    board: {url: "https://www.bepa.kr/"}
   - name: 한국사회기술원
     match: [한국사회기술원]
+    board: {url: "https://www.kpea.or.kr/"}
   - name: KITA(한국무역협회)
     match: [한국무역협회, KITA]
   - name: KOTRA
