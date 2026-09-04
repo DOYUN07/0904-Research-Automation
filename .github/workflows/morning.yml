@@ -1,0 +1,28 @@
+name: morning-brief
+
+on:
+  schedule:
+    # 08:00 KST = 23:00 UTC (전날). GitHub cron은 UTC 기준.
+    - cron: "0 23 * * *"
+  workflow_dispatch: {}   # 수동 실행 버튼
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run brief
+        env:
+          BIZINFO_API_KEY: ${{ secrets.BIZINFO_API_KEY }}
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+          NOTIFY_CHANNELS: ${{ secrets.NOTIFY_CHANNELS }}
+          KAKAO_REST_KEY: ${{ secrets.KAKAO_REST_KEY }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: python main.py
