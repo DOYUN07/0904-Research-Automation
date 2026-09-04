@@ -83,11 +83,15 @@ def run():
             results.append(entry)
             continue
 
-        # 키워드 필터 → 중복 제거 → 상위 max_n건
+        # 키워드 필터 → 마감 지난 공고 제외 → 중복 제거 → 상위 max_n건
         picked = []
+        today_d = datetime.date.today()
         for it in candidates:
             if it.get("url") in seen or f"{name}|{it.get('title','')}" in seen:
                 continue  # 이전 브리핑에서 이미 알림한 공고
+            end = archive._parse_end_date(it.get("deadline", ""))
+            if end and end < today_d:
+                continue  # 이미 마감된 공고
             hits = match_keywords(it.get("title", "") + " " + it.get("summary", ""), kw_map)
             if hits:
                 it["keywords"] = hits

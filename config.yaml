@@ -40,14 +40,14 @@ agencies:
     board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 정보통신산업진흥원(NIPA)
     match: [정보통신산업진흥원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
+    board: {url: "https://www.nipa.kr/home/2-2", link_contains: "/home/2-2/"}
   - name: 산업통상자원부
     match: [산업통상자원부]
   - name: 전북테크노파크
     match: [전북테크노파크]
   - name: 부산테크노파크
     match: [부산테크노파크]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
+    board: {url: "https://www.btp.or.kr/kor/CMS/Board/Board.do?mCode=MN013"}
   - name: 경남테크노파크
     match: [경남테크노파크]
   - name: 한국사회보장정보원
