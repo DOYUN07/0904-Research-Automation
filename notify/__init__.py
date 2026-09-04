@@ -7,7 +7,7 @@
 import os
 
 
-def send_all(subject: str, body: str):
+def send_all(subject: str, body: str, recipients=None):
     channels = [c.strip() for c in os.environ.get("NOTIFY_CHANNELS", "").split(",") if c.strip()]
     if not channels:
         print("\n(NOTIFY_CHANNELS 미설정 — 콘솔 출력만 수행)")
@@ -19,7 +19,7 @@ def send_all(subject: str, body: str):
                 kakao.send(body)
             elif ch == "email":
                 from . import email_smtp
-                email_smtp.send(subject, body)
+                email_smtp.send(subject, body, recipients=recipients)
             else:
                 print(f"알 수 없는 채널: {ch}")
         except Exception as e:

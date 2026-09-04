@@ -13,11 +13,13 @@ from email.mime.text import MIMEText
 from email.header import Header
 
 
-def send(subject: str, body: str):
+def send(subject: str, body: str, recipients=None):
     user = os.environ["SMTP_USER"]
     pw = os.environ["SMTP_PASS"]
-    raw = os.environ.get("MAIL_TO") or user
-    recipients = [a.strip() for a in raw.split(",") if a.strip() and "@" in a]
+    if recipients is None:  # 시트 미연동 시 MAIL_TO secret 사용
+        raw = os.environ.get("MAIL_TO") or user
+        recipients = [a.strip() for a in raw.split(",") if a.strip() and "@" in a]
+    recipients = [a for a in recipients if "@" in a]
     if not recipients:
         recipients = [user]
 

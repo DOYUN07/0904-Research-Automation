@@ -15,6 +15,7 @@ from fetchers import bizinfo, kstartup, board
 from report import build_report
 from notify import send_all
 import archive
+import sheet_settings
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,13 +49,16 @@ def match_keywords(text: str, kw_map: dict) -> list:
 
 def run():
     cfg = load_config()
+    sheet = sheet_settings.load()
+    if sheet["keywords"]:
+        cfg["keywords"] = sheet["keywords"]
     kw_map = flatten_keywords(cfg)
-    excludes = cfg.get("exclude_keywords", []) or []
+    excludes = sheet["excludes"] if sheet["excludes"] is not None else (cfg.get("exclude_keywords", []) or [])
     max_n = cfg.get("max_per_agency", 3)
     recent_days = cfg.get("recent_days", 7)
 
     # ── 1. 공고 수집 ──────────────────────────────
-    errors = []
+    errors = list(sheet["notes"])  # 시트 읽기 경고 표시
     biz_items = []
     try:
         biz_items = bizinfo.fetch(recent_days=recent_days)
@@ -119,7 +123,7 @@ def run():
     text = build_report(today, results, errors, ongoing=ongoing)
     print(text)
     archive.save(text, results)
-    send_all(subject=f"[아침 공고 브리핑] {today}", body=text)
+    send_all(subject=f"[아침 공고 브리핑] {today}", body=text, recipients=sheet["recipients"])
 
 
 if __name__ == "__main__":
