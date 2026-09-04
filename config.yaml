@@ -47,7 +47,6 @@ exclude_keywords:
   - 선정 결과
   - 유찰
   - 재공고 취소
-  - 창업
 
 # ─── 대상 기관 (34곳, 업로드 리스트 기준) ───
 # source 우선순위:
@@ -56,47 +55,52 @@ exclude_keywords:
 #   3) board    : 개별 게시판 스크래핑 (url + selector 채워야 동작)
 # match: 기업마당 기관명 필드와 부분일치시킬 문자열 목록
 agencies:
+  # ── board url이 채워진 기관 = 게시판 직접 수집 (검증 완료) ──
+  # ── board url이 빈 기관 = 기업마당 API로 커버 (match 이름으로 분류) ──
+  # 게시판을 추가하려면: 해당 기관 공고 목록 페이지 주소를 url에 붙여넣기만 하면 됨
+  #   board: {url: "공고목록주소"}
+
   - name: 부산정보산업진흥원
     match: [부산정보산업진흥원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
-  - name: 연구개발특구진흥재단
-    match: [연구개발특구진흥재단, 특구재단]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
+    board: {url: "https://bipa.kr/board/business/list", link_contains: "/board/business/view"}
   - name: 정보통신산업진흥원(NIPA)
     match: [정보통신산업진흥원]
     board: {url: "https://www.nipa.kr/home/2-2", link_contains: "/home/2-2/"}
+  - name: 부산테크노파크
+    match: [부산테크노파크]
+    board: {url: "https://www.btp.or.kr/kor/CMS/Board/Board.do?mCode=MN013"}
+  - name: 한국보건산업진흥원
+    match: [한국보건산업진흥원, 보건산업진흥원]
+    board: {url: "https://www.khidi.or.kr/board?menuId=MENU01108", link_contains: "/board/view"}
+  - name: 고령친화산업지원센터
+    match: [고령친화산업지원센터]
+    board: {url: "https://www.khidi.or.kr/board?menuId=MENU00325&siteId=SITE00003", link_contains: "/board/view"}
+
+  # ── 이하 기업마당 커버 (게시판 URL 확인되면 board 줄 추가) ──
+  - name: 연구개발특구진흥재단
+    match: [연구개발특구진흥재단, 특구재단]
   - name: 산업통상자원부
     match: [산업통상자원부]
   - name: 전북테크노파크
     match: [전북테크노파크]
-  - name: 부산테크노파크
-    match: [부산테크노파크]
-    board: {url: "https://www.btp.or.kr/kor/CMS/Board/Board.do?mCode=MN013"}
   - name: 경남테크노파크
     match: [경남테크노파크]
   - name: 한국사회보장정보원
     match: [한국사회보장정보원, 사회보장정보원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 광주테크노파크
     match: [광주테크노파크]
-  - name: 고령친화산업지원센터
-    match: [고령친화산업지원센터]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 한국디지털헬스케어진흥재단
     match: [디지털헬스케어진흥재단]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 중소벤처기업부
     match: [중소벤처기업부]
   - name: 범부처통합연구지원시스템(IRIS)
     match: [범부처, IRIS]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 보건복지부
     match: [보건복지부]
   - name: 농림축산식품부
     match: [농림축산식품부]
   - name: 중앙사회서비스원
     match: [중앙사회서비스원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 광주경제진흥상생일자리재단
     match: [광주경제진흥상생일자리재단]
   - name: 한국농어촌공사
@@ -105,42 +109,29 @@ agencies:
     match: [전남정보문화산업진흥원]
   - name: 한국바이오특화센터협의회
     match: [바이오특화센터]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 한국지능정보사회진흥원(NIA)
     match: [지능정보사회진흥원]
   - name: 저출산고령사회위원회
     match: [저출산고령사회위원회]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 광주정보문화산업진흥원
     match: [광주정보문화산업진흥원]
   - name: 한국디지털헬스산업협회
     match: [디지털헬스산업협회]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 부산시민운동지원센터
     match: [부산시민운동지원센터]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: 부산사회서비스원
     match: [부산사회서비스원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: K-Startup
     source: kstartup
   - name: 부산경제진흥원
     match: [부산경제진흥원]
   - name: 한국사회기술원
     match: [한국사회기술원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: KITA(한국무역협회)
     match: [한국무역협회, KITA]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
   - name: KOTRA
     match: [KOTRA, 대한무역투자진흥공사]
   - name: 전남바이오진흥원
     match: [전남바이오진흥원]
-  - name: 한국보건산업진흥원
-    match: [한국보건산업진흥원, 보건산업진흥원]
   - name: 한국산업기술원
     match: [한국산업기술원]
-    board: {url: "", item_selector: "", title_selector: "", link_selector: ""}
-
-# 마감일 없는 공고를 "진행 중" 목록에 유지할 일수
-ongoing_keep_days: 30
