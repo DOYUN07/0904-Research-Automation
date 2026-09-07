@@ -31,14 +31,23 @@ def load_seen() -> set:
 def _parse_end_date(deadline: str):
     """'2026-09-01 ~ 2026-09-30', '20260930' 등에서 마지막 날짜 추출. 실패 시 None."""
     import re
-    dates = re.findall(r"(\d{4})[.\-/]?\s?(\d{2})[.\-/]?\s?(\d{2})", deadline or "")
-    if not dates:
-        return None
-    y, m, d = dates[-1]
-    try:
-        return datetime.date(int(y), int(m), int(d))
-    except ValueError:
-        return None
+    text = deadline or ""
+    dates = re.findall(r"(\d{4})[.\-/]?\s?(\d{2})[.\-/]?\s?(\d{2})", text)
+    if dates:
+        y, m, d = dates[-1]
+        try:
+            return datetime.date(int(y), int(m), int(d))
+        except ValueError:
+            pass
+    # 연도 없는 표기: (~9/30), ~ 7.17 등 → 올해로 가정
+    md = re.findall(r"~\s*(\d{1,2})[./](\d{1,2})", text)
+    if md:
+        m, d = md[-1]
+        try:
+            return datetime.date(datetime.date.today().year, int(m), int(d))
+        except ValueError:
+            pass
+    return None
 
 
 def load_ongoing(keep_days: int = 30) -> list:

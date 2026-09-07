@@ -19,6 +19,9 @@ from bs4 import BeautifulSoup
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"}
 
+# 마감 상태 표기 — '마감임박', 'D-3', '종료일' 라벨은 매칭되지 않도록 좁게 정의
+CLOSED_MARK = re.compile(r"\(\s*마감\s*\)|\[\s*마감\s*\]|접수\s*마감(?!\s*[:일임연])|모집\s*마감(?!\s*[:일임연])|신청\s*마감(?!\s*[:일임연])|마감되었|모집\s*완료|\(\s*종료\s*\)|종료(?!일)")
+
 DATE_RANGE = re.compile(
     r"(\d{4}[.\-/]\s?\d{1,2}[.\-/]\s?\d{1,2}[^~]{0,12}~\s?[^0-9]{0,6}\d{4}[.\-/]\s?\d{1,2}[.\-/]\s?\d{1,2})"
 )
@@ -61,17 +64,25 @@ def _auto_mode(soup, cfg, url, agency):
             continue
         seen.add(full)
 
-        # 링크가 속한 행(tr/li 등) 텍스트에서 신청기간 추출
-        deadline = ""
+        # 링크가 속한 행(tr/li 등) 텍스트에서 신청기간·마감상태 추출
+        deadline, closed = "", False
         parent = a
         for _ in range(4):
             parent = parent.parent
             if parent is None:
                 break
-            m = DATE_RANGE.search(parent.get_text(" ", strip=True))
+            row_text = parent.get_text(" ", strip=True)
+            if len(row_text) > 400:
+                break  # 행 범위를 벗어나 페이지 전체로 번진 경우 중단
+            if CLOSED_MARK.search(row_text) or CLOSED_MARK.search(title):
+                closed = True
+                break
+            m = DATE_RANGE.search(row_text)
             if m:
                 deadline = re.sub(r"\s+", " ", m.group(1))
                 break
+        if closed:
+            continue  # 마감/종료 표기된 공고 제외
 
         out.append({
             "title": title,
