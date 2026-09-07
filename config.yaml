@@ -74,7 +74,7 @@ agencies:
     board: {url: "https://www.khidi.or.kr/board?menuId=MENU01108", link_contains: "/board/view"}
   - name: 고령친화산업지원센터
     match: [고령친화산업지원센터]
-    board: {url: "https://www.khidi.or.kr/board?menuId=MENU00325&siteId=SITE00003", link_contains: "/board/view"}
+    board: {url: "https://www.gstc.or.kr/"}
 
   # ── 이하 기업마당 커버 (게시판 URL 확인되면 board 줄 추가) ──
   - name: 연구개발특구진흥재단
